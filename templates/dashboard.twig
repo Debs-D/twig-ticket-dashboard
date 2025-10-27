@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ title }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+<body class="bg-gray-50 font-inter text-gray-800">
+
+{% include 'partials/navbar.twig' %}
+
+<div class="flex min-h-screen mt-16">
+  <!-- SIDEBAR -->
+  <aside class="hidden md:flex flex-col justify-between w-64 bg-white border-r shadow-sm p-6 sticky top-16 h-[calc(100vh-4rem)]">
+    <div>
+      <h2 class="text-xl font-bold mb-6 text-[#E040FB]">Dashboard</h2>
+      <nav class="space-y-2">
+        <button class="nav-btn bg-[#E040FB] text-white shadow-sm w-full px-4 py-2 rounded-lg" data-view="overview">Overview</button>
+        <button class="nav-btn text-gray-700 hover:bg-gray-100 w-full px-4 py-2 rounded-lg" data-view="profile">Profile</button>
+      </nav>
+    </div>
+
+    <button id="logoutBtn"
+      class="flex items-center gap-3 bg-[#E040FB]/90 px-4 py-2 rounded-full text-white hover:bg-[#E040FB] shadow-sm transition">
+      Logout
+    </button>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <main class="flex-1 p-8 bg-gray-50 min-h-[calc(100vh-8rem)]" id="mainView">
+    <section id="overviewView">
+      <h1 class="text-3xl font-bold text-[#E040FB] mb-6">Welcome, <span id="userName">User</span> 👋</h1>
+
+      <div class="grid sm:grid-cols-3 gap-6 mb-12">
+        <div class="p-6 bg-white rounded-xl border shadow-sm text-center">
+          <p class="text-3xl font-bold text-[#E040FB]" id="totalTickets">0</p>
+          <p class="text-gray-700 font-medium">Total Tickets</p>
+        </div>
+        <div class="p-6 bg-white rounded-xl border shadow-sm text-center">
+          <p class="text-3xl font-bold text-[#E040FB]" id="openTickets">0</p>
+          <p class="text-gray-700 font-medium">Open Tickets</p>
+        </div>
+        <div class="p-6 bg-white rounded-xl border shadow-sm text-center">
+          <p class="text-3xl font-bold text-[#E040FB]" id="resolvedTickets">0</p>
+          <p class="text-gray-700 font-medium">Resolved Tickets</p>
+        </div>
+      </div>
+
+      <!-- Go to tickets page -->
+      <a href="/tickets"
+        class="bg-[#E040FB] text-white px-8 py-3 rounded-full font-semibold shadow-md hover:bg-pink-500 transition">
+        Manage Tickets
+      </a>
+    </section>
+
+    <section id="profileView" class="hidden">
+      <h1 class="text-2xl font-semibold text-[#E040FB] mb-4">Profile</h1>
+      <div class="bg-white p-6 rounded-xl shadow-sm max-w-lg space-y-3">
+        <p><strong>Name:</strong> <span id="profileName">User</span></p>
+        <p><strong>Email:</strong> <span id="profileEmail">N/A</span></p>
+      </div>
+    </section>
+  </main>
+</div>
+
+{% include 'partials/footer.twig' %}
+
+<script>
+  // --- LOAD USER ---
+  const user = JSON.parse(localStorage.getItem('loggedInUser'));
+  if (!user) {
+    Toastify({ text: "Please login first!", backgroundColor: "red", duration: 2000 }).showToast();
+    setTimeout(() => location.href = "/auth/login", 1200);
+  }
+
+  document.getElementById('userName').textContent = user?.firstName || 'User';
+  document.getElementById('profileName').textContent = user?.firstName || 'User';
+  document.getElementById('profileEmail').textContent = user?.email || 'N/A';
+
+  // --- LOAD TICKET COUNTS ---
+  const tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+  const userTickets = tickets.filter(t => t.userEmail === user.email);
+
+  document.getElementById('totalTickets').textContent = userTickets.length;
+  document.getElementById('openTickets').textContent = userTickets.filter(t => t.status === 'open').length;
+  document.getElementById('resolvedTickets').textContent = userTickets.filter(t => t.status === 'closed').length;
+
+  // --- SIDEBAR SWITCH ---
+  const sections = { overview: document.getElementById('overviewView'), profile: document.getElementById('profileView') };
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = btn.dataset.view;
+      for (let key in sections) sections[key].classList.toggle('hidden', key !== view);
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('bg-[#E040FB]', 'text-white'));
+      btn.classList.add('bg-[#E040FB]', 'text-white');
+    });
+  });
+
+  // --- LOGOUT ---
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('loggedInUser');
+    location.href = "/auth/login";
+  });
+</script>
+</body>
+</html>

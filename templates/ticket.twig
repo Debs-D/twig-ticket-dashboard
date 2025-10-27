@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ title }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+<body class="bg-gray-50 font-inter text-gray-800">
+
+{% include 'partials/navbar.twig' %}
+
+<main class="max-w-6xl mx-auto p-8 mt-20">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-bold text-[#E040FB]">Manage Your Tickets</h1>
+    <a href="/dashboard"
+       class="flex items-center gap-2 bg-white border border-[#E040FB] text-[#E040FB] px-5 py-2 rounded-full hover:bg-[#E040FB] hover:text-white transition shadow-sm">
+      ← Back to Dashboard
+    </a>
+  </div>
+
+  <form id="ticketForm" class="bg-white p-6 rounded-2xl shadow-md mb-10 border border-gray-100">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <input type="text" id="title" placeholder="Title *" class="border p-3 rounded-md w-full focus:ring-2 focus:ring-[#E040FB] outline-none" required>
+      <select id="status" class="border p-3 rounded-md w-full focus:ring-2 focus:ring-[#E040FB] outline-none">
+        <option value="open">Open</option>
+        <option value="in_progress">In Progress</option>
+        <option value="closed">Closed</option>
+      </select>
+    </div>
+    <textarea id="description" placeholder="Description (optional)" class="border p-3 rounded-md w-full mt-4 h-28 resize-none focus:ring-2 focus:ring-[#E040FB] outline-none"></textarea>
+    <button type="submit" class="mt-6 bg-[#E040FB] text-white px-8 py-3 rounded-full font-semibold shadow-md hover:bg-pink-500 transition">
+      Create Ticket
+    </button>
+  </form>
+
+  <div id="ticketList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</main>
+
+{% include 'partials/footer.twig' %}
+
+<script>
+  const user = JSON.parse(localStorage.getItem('loggedInUser'));
+  if (!user) {
+    Toastify({ text: "Please login first!", backgroundColor: "red", duration: 2000 }).showToast();
+    setTimeout(()=> location.href="/auth/login", 1200);
+  }
+
+  let tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+  let userTickets = tickets.filter(t => t.userEmail === user.email);
+  const list = document.getElementById('ticketList');
+  const form = document.getElementById('ticketForm');
+  let editIndex = null;
+
+  function saveTickets() {
+    const others = tickets.filter(t => t.userEmail !== user.email);
+    tickets = [...others, ...userTickets];
+    localStorage.setItem('tickets', JSON.stringify(tickets));
+  }
+
+  function renderTickets() {
+    if (userTickets.length === 0) {
+      list.innerHTML = '<p class="text-center text-gray-500 mt-8">No tickets yet — create one above!</p>';
+      return;
+    }
+    list.innerHTML = userTickets.map((t, i)=>`
+      <div class="bg-white border p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all relative">
+        <span class="absolute top-4 right-4 px-3 py-1 rounded-full text-sm bg-gray-100 capitalize">${t.status}</span>
+        <h3 class="font-bold text-xl text-[#E040FB]">${t.title}</h3>
+        <p class="text-sm text-gray-600 mt-2">${t.description || 'No description provided.'}</p>
+        <div class="flex gap-3 mt-6">
+          <button class="text-[#E040FB]" onclick="editTicket(${i})">✏️ Edit</button>
+          <button class="text-red-500" onclick="deleteTicket(${i})">🗑️ Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function editTicket(i){
+    const t = userTickets[i];
+    document.getElementById('title').value = t.title;
+    document.getElementById('description').value = t.description;
+    document.getElementById('status').value = t.status;
+    editIndex = i;
+  }
+
+  function deleteTicket(i){
+    if(confirm('Delete this ticket?')){
+      userTickets.splice(i,1);
+      saveTickets();
+      renderTickets();
+      Toastify({ text: "Ticket deleted!", backgroundColor: "red", duration: 2000 }).showToast();
+    }
+  }
+
+  form.addEventListener('submit', e=>{
+    e.preventDefault();
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const status = document.getElementById('status').value;
+
+    if (!title){
+      Toastify({ text: "Title is required!", backgroundColor: "red" }).showToast();
+      return;
+    }
+
+    const data = { title, description, status, userEmail: user.email };
+
+    if (editIndex !== null){
+      userTickets[editIndex] = data;
+      editIndex = null;
+      Toastify({ text: "Ticket updated!", backgroundColor: "#E040FB" }).showToast();
+    } else {
+      userTickets.push(data);
+      Toastify({ text: "Ticket created!", backgroundColor: "#E040FB" }).showToast();
+    }
+
+    saveTickets();
+    form.reset();
+    renderTickets();
+  });
+
+  renderTickets();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+    "name": "sulaimonot/twig-ticket-dashboard",
+    "autoload": {
+        "psr-4": {
+            "Sulaimonot\\TwigTicketDashboard\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Debs-D",
+            "email": "aishat.odekunley@gmail.com"
+        }
+    ],
+    "require": {
+        "twig/twig": "^3.21"
+    }
+}

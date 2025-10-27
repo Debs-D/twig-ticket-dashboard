@@ -1,0 +1,125 @@
+<nav class="w-full fixed top-0 left-0 bg-white/80 backdrop-blur-lg shadow-sm z-50">
+  <div class="max-w-[1440px] mx-auto flex items-center justify-between px-6 py-4">
+    <!-- Brand -->
+    <a href="/" class="text-2xl font-bold text-[#E040FB] flex items-center gap-2">
+      <span class="text-2xl">🎟️</span>
+      <span>TicketApp</span>
+    </a>
+
+    <!-- Desktop Links -->
+    <ul class="hidden md:flex items-center gap-8 text-gray-700 font-medium">
+      <li><a href="#features" class="hover:text-[#E040FB] transition">Features</a></li>
+      <li><a href="#about" class="hover:text-[#E040FB] transition">About</a></li>
+      <li><a href="#faq" class="hover:text-[#E040FB] transition">FAQs</a></li>
+    </ul>
+
+    <!-- Auth Buttons (desktop) -->
+    <div class="hidden md:flex items-center gap-4">
+      <a id="nav-dashboard-link" href="/dashboard" class="hidden flex items-center gap-2 hover:text-[#E040FB] transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5.121 17.804A8 8 0 0112 16a8 8 0 016.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="font-medium">Dashboard</span>
+      </a>
+
+      <a id="nav-login-link" href="/auth/login" class="text-[#E040FB] font-semibold hover:underline">
+        Log in / Register
+      </a>
+
+      <!-- ✅ Added Logout Button -->
+      <button id="nav-logout-btn" class="hidden bg-[#E040FB] text-white px-4 py-2 rounded-md hover:bg-pink-500 transition">
+        Logout
+      </button>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button id="menu-toggle" class="md:hidden" aria-label="menu">
+      <svg id="menu-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Dropdown -->
+  <div id="mobile-menu" class="hidden md:hidden bg-white shadow-inner">
+    <ul class="flex flex-col items-center gap-4 py-4 text-gray-700 font-medium">
+      <li><a href="#features" class="hover:text-[#E040FB] transition">Features</a></li>
+      <li><a href="#about" class="hover:text-[#E040FB] transition">About</a></li>
+      <li><a href="#faq" class="hover:text-[#E040FB] transition">FAQs</a></li>
+
+      <li id="mobile-dashboard-link" class="hidden">
+        <a href="/dashboard" class="flex items-center gap-2 hover:text-[#E040FB]">Dashboard</a>
+      </li>
+
+      <li id="mobile-login-link">
+        <a href="/auth/login" class="bg-[#E040FB] text-white px-6 py-2 rounded-md hover:bg-pink-500 transition">Log in / Register</a>
+      </li>
+
+      <li id="mobile-logout-li" class="hidden">
+        <button id="mobile-logout-btn" class="bg-[#E040FB] text-white px-6 py-2 rounded-md hover:opacity-90">Logout</button>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  const isLoggedIn = !!user;
+
+  const navDashboard = document.getElementById("nav-dashboard-link");
+  const navLogin = document.getElementById("nav-login-link");
+  const navLogout = document.getElementById("nav-logout-btn");
+
+  const mobileDashboard = document.getElementById("mobile-dashboard-link");
+  const mobileLogin = document.getElementById("mobile-login-link");
+  const mobileLogoutLi = document.getElementById("mobile-logout-li");
+  const mobileLogoutBtn = document.getElementById("mobile-logout-btn");
+
+  // ✅ Show/hide links based on login state
+  if (isLoggedIn) {
+    navDashboard?.classList.remove("hidden");
+    navLogout?.classList.remove("hidden");
+    navLogin?.classList.add("hidden");
+
+    mobileDashboard?.classList.remove("hidden");
+    mobileLogoutLi?.classList.remove("hidden");
+    mobileLogin?.classList.add("hidden");
+  }
+
+  // ✅ Logout handler
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    Toastify({
+      text: "Logged out",
+      duration: 1500,
+      backgroundColor: "#E040FB",
+    }).showToast();
+
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 700);
+  }
+
+  navLogout?.addEventListener("click", logout);
+  mobileLogoutBtn?.addEventListener("click", logout);
+
+  // ✅ Mobile menu toggle + icon swap
+  const menuToggle = document.getElementById("menu-toggle");
+  const menuIcon = document.getElementById("menu-icon");
+  const mobileMenu = document.getElementById("mobile-menu");
+
+  if (menuToggle) {
+    menuToggle.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+
+      const isOpen = !mobileMenu.classList.contains("hidden");
+      menuIcon.innerHTML = isOpen
+        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />'
+        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
+    });
+  }
+});
+</script>

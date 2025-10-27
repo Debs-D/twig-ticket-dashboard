@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ title }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+<body class="font-inter">
+
+  {% include 'partials/navbar.twig' %}
+
+  <div class="grid md:grid-cols-2 min-h-screen bg-gradient-to-r from-[#E040FB] to-[#FFC2FF]">
+    <!-- IMAGE SIDE -->
+    <div class="hidden md:flex items-center justify-center">
+      <img src="https://framerusercontent.com/images/f5N8nV6VGKRyj6jWBs2dAj8tjo.png" alt="Signup Illustration" class="w-[85%] drop-shadow-2xl"/>
+    </div>
+
+    <!-- FORM SIDE -->
+    <div class="bg-white rounded-l-3xl flex items-center justify-center p-10">
+      <form id="signup-form" class="w-full max-w-md space-y-5 font-inter">
+        <h2 class="text-3xl font-bold text-[#E040FB] text-center">Create Your Account</h2>
+        <p class="text-gray-500 text-center">Join and start managing your tickets effortlessly.</p>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <label class="text-sm text-gray-700 font-medium">First Name</label>
+            <div class="flex items-center border border-gray-200 rounded-2xl px-3 py-2 focus-within:ring-2 focus-within:ring-[#E040FB]">
+              <span class="text-gray-400">👤</span>
+              <input type="text" name="firstName" placeholder="First Name" class="ml-2 w-full outline-none placeholder-gray-400" required />
+            </div>
+          </div>
+          <div class="space-y-1">
+            <label class="text-sm text-gray-700 font-medium">Last Name</label>
+            <div class="flex items-center border border-gray-200 rounded-2xl px-3 py-2 focus-within:ring-2 focus-within:ring-[#E040FB]">
+              <span class="text-gray-400">👤</span>
+              <input type="text" name="lastName" placeholder="Last Name" class="ml-2 w-full outline-none placeholder-gray-400" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-sm text-gray-700 font-medium">Email</label>
+          <div class="flex items-center border border-gray-200 rounded-2xl px-3 py-2 focus-within:ring-2 focus-within:ring-[#E040FB]">
+            <span class="text-gray-400">📧</span>
+            <input type="email" name="email" placeholder="Enter your email" class="ml-2 w-full outline-none placeholder-gray-400" required />
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-sm text-gray-700 font-medium">Phone</label>
+          <div class="flex items-center border border-gray-200 rounded-2xl px-3 py-2 focus-within:ring-2 focus-within:ring-[#E040FB]">
+            <span class="text-gray-400">📞</span>
+            <input type="text" name="phone" placeholder="Enter your phone number" class="ml-2 w-full outline-none placeholder-gray-400" required />
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-sm text-gray-700 font-medium">Password</label>
+          <div class="flex items-center border border-gray-200 rounded-2xl px-3 py-2 focus-within:ring-2 focus-within:ring-[#E040FB]">
+            <span class="text-gray-400">🔒</span>
+            <input type="password" name="password" placeholder="Enter your password" class="ml-2 w-full outline-none placeholder-gray-400" required />
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-[#E040FB] to-[#FFC2FF] text-white rounded-full font-semibold hover:opacity-90 transition">Sign Up</button>
+        <p class="text-sm text-center text-gray-600">
+          Already have an account?
+          <a href="/auth/login" class="text-[#E040FB] font-semibold hover:underline">Login here</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+<script>
+document.getElementById('signup-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const firstName = e.target.firstName.value.trim();
+  const lastName = e.target.lastName.value.trim();
+  const email = e.target.email.value.trim();
+  const phone = e.target.phone.value.trim();
+  const password = e.target.password.value.trim();
+
+  if (!firstName || !lastName || !email || !phone || !password) {
+    Toastify({ text: "All fields are required", backgroundColor: "red" }).showToast();
+    return;
+  }
+
+  const user = { firstName, lastName, email, phone, password };
+  localStorage.setItem('ticketUser', JSON.stringify(user));
+
+  Toastify({ text: "Signup successful 🎉", backgroundColor: "#E040FB", duration: 2500 }).showToast();
+  setTimeout(() => window.location.href = "/auth/login", 2000);
+});
+</script>
+</body>
+</html>
